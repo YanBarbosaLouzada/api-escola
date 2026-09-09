@@ -3,22 +3,24 @@ import { alunos, setAlunos } from '../models/alunos.model.js';
 
 // GET /alunos
 export function listarAlunos(req, res) {
-  const { turma } = req.query;
+  const { nome } = req.query;
 
-  if (turma) {
-    return res.json(alunos.filter((a) => a.turma === turma));
+  if (nome) {
+    return res.json(alunos.filter((a) => a.nome === nome));
   }
 
   res.json(alunos);
 }
 
 // GET /alunos/:id
-export function buscarAluno(req, res) {
+export function buscarAluno(req, res, next) {
   const id = Number(req.params.id);
   const aluno = alunos.find((a) => a.id === id);
 
   if (!aluno) {
-    return res.status(404).json({ erro: 'Aluno não encontrado' });
+    const erro = new Error('Aluno não encontrado');
+    erro.status = 404;
+    return next(erro)
   }
 
   res.json(aluno);

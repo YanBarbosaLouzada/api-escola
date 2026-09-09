@@ -7,13 +7,14 @@ import {
   atualizarAluno,
   deletarAluno,
 } from '../controllers/alunos.controllers.js';
+import { validarAluno } from '../middleware/validarAluno.js';
 
 const router = Router();
 
 router.get('/',       listarAlunos);
 router.get('/:id',    buscarAluno);
-router.post('/',      criarAluno);
-router.put('/:id',    atualizarAluno);
+router.post('/',      validarAluno, criarAluno);
+router.put('/:id',    validarAluno, atualizarAluno);
 router.delete('/:id', deletarAluno);
 
 export default router;
