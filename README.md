@@ -1,3 +1,7 @@
+Senha do projeto didatico:
+qYzvBunF8u3jv0bp
+
+
 # 🎓 API Escola
 
 API REST didática de cadastro de alunos, feita com **Node.js + Express 5** e **ES Modules**.

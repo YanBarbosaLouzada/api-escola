@@ -1,12 +1,16 @@
 // server.js
+import 'dotenv/config';
 import express from 'express';
+import { conectarBanco } from './config/database.js';
 import alunosRoutes from './routes/alunos.routes.js';
 import { logger } from './middleware/logger.js';
 import { notFound } from './middleware/notFound.js';
 import { errorHandler } from './middleware/errorHandler.js';
 
+
 const app = express();
 const PORT = 3000;
+await conectarBanco()
 
 
 app.use(logger);

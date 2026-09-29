@@ -1,70 +1,82 @@
 // controllers/alunos.controllers.js
-import { alunos, setAlunos } from '../models/alunos.model.js';
+import { Aluno } from "../models/alunos.model.js";
 
 // GET /alunos
-export function listarAlunos(req, res) {
-  const { nome } = req.query;
+export async function listarAlunos(req, res, next) {
+  try {
+    const { nome} = req.query;
 
-  if (nome) {
-    return res.json(alunos.filter((a) => a.nome === nome));
+    const filtro = {};
+    if (nome)  filtro.nome  = nome;
+   
+
+    const alunos = await Aluno.find(filtro).sort({ nome: 1 });
+    res.json(alunos);
+  } catch (erro) {
+    next(erro);
   }
-
-  res.json(alunos);
 }
 
 // GET /alunos/:id
-export function buscarAluno(req, res, next) {
-  const id = Number(req.params.id);
-  const aluno = alunos.find((a) => a.id === id);
+export async function buscarAluno(req, res, next) {
+  try {
+    const aluno = await Aluno.findById(req.params.id);
 
-  if (!aluno) {
-    const erro = new Error('Aluno não encontrado');
-    erro.status = 404;
-    return next(erro)
+    if (!aluno) {
+      const erro = new Error("Aluno não encontrado");
+      erro.status = 404;
+      return next(erro);
+    }
+    res.json(aluno);
+  } catch (erro) {
+    next(erro);
   }
-
-  res.json(aluno);
 }
 
 // POST /alunos
-export function criarAluno(req, res) {
-  const { nome, idade, turma } = req.body;
+export async function criarAluno(req, res, next) {
+  try {
+    const { nome, idade, turma } = req.body
 
-  if (!nome) {
-    return res.status(400).json({ erro: 'O campo nome é obrigatório' });
+    const novoAluno = await Aluno.create({ nome, idade, turma });
+
+    res.status(201).json(novoAluno);
+  } catch (erro) {
+    next(erro);
   }
-
-  const novoAluno = { id: alunos.length + 1, nome, idade, turma };
-
-  alunos.push(novoAluno);
-  res.status(201).json(novoAluno);
 }
 
 // PUT /alunos/:id
-export function atualizarAluno(req, res) {
-  const id = Number(req.params.id);
-  const aluno = alunos.find((a) => a.id === id);
+export async function atualizarAluno(req, res, next) {
+  try {
+    const aluno = await Aluno.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
 
-  if (!aluno) {
-    return res.status(404).json({ erro: 'Aluno não encontrado' });
+    if (!aluno) {
+      const erro = new Error('Aluno não encontrado')
+      erro.status = 404;
+      return next(erro);
+    }
+    res.json(aluno);
+  } catch (erro) {
+    next(erro);
   }
-
-  aluno.nome  = req.body.nome  ?? aluno.nome;
-  aluno.idade = req.body.idade ?? aluno.idade;
-  aluno.turma = req.body.turma ?? aluno.turma;
-
-  res.json(aluno);
 }
 
 // DELETE /alunos/:id
-export function deletarAluno(req, res) {
-  const id = Number(req.params.id);
-  const existe = alunos.some((a) => a.id === id);
-
-  if (!existe) {
-    return res.status(404).json({ erro: 'Aluno não encontrado' });
+export async function deletarAluno(req, res, next) {
+  try {
+    const aluno = await Aluno.findByIdAndDelete(req.params.id);
+    if (!aluno) {
+      const erro = new Error("Aluno não encontrado");
+      erro.status = 404;
+      return next(erro);
+    }
+    res.status(204).end();
+  } catch (erro) {
+    next(erro);
   }
-
-  setAlunos(alunos.filter((a) => a.id !== id));
-  res.status(204).end();
 }
